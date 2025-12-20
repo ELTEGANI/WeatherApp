@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,21 +61,32 @@ fun WeatherScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "5 Day Forecast",
                 style = Typography.titleLarge,
                 color = Color.White,
-                modifier = Modifier.padding(top = 32.dp, bottom = 32.dp)
+                modifier = Modifier.padding(top = 30.dp, bottom = 18.dp)
             )
-
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                thickness = 1.dp,
+                color = Color.White
+            )
             when {
                 uiState.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(32.dp),
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color.White
+                        )
+                    }
                 }
 
                 uiState.error != null -> {
