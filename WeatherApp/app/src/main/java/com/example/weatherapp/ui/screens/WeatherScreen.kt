@@ -44,19 +44,15 @@ fun WeatherScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
             )
-        } else {
-            viewModel.loadWeatherForecast()
-        }
+        )
     }
 
-    CCWeatherBackground(
+    WeatherBackground(
         modifier = modifier,
         weatherType = uiState.weatherType
     ) {
@@ -80,6 +76,7 @@ fun WeatherScreen(
                         color = Color.White
                     )
                 }
+
                 uiState.error != null -> {
                     Text(
                         text = uiState.error ?: "Error occurred",
@@ -106,7 +103,7 @@ fun WeatherScreen(
 }
 
 @Composable
-fun CCWeatherBackground(
+fun WeatherBackground(
     modifier: Modifier = Modifier,
     weatherType: WeatherType,
     content: @Composable () -> Unit
@@ -164,7 +161,7 @@ fun WeatherCard(forecast: WeatherForecast) {
                         id = WeatherIconMapper.getWeatherIconResId(forecast.weatherType)
                     ),
                     contentDescription = "${forecast.weatherType} icon",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(60.dp)
                 )
             }
             Text(

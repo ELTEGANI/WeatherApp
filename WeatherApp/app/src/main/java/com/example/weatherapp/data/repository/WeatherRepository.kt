@@ -26,14 +26,11 @@ class WeatherRepository(
                 lon = location.second,
                 appId = apiKey
             )
-
-            // Group forecasts by date and get one per day (preferably midday)
             val dailyForecasts = groupForecastsByDay(response.list)
             val forecasts = dailyForecasts.map { item ->
                 convertToWeatherForecast(item)
             }
-
-            Result.success(forecasts.take(5)) // Take only 5 days
+            Result.success(forecasts.take(5))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -45,14 +42,12 @@ class WeatherRepository(
                 Date(item.dt * 1000)
             )
         }
-
-        // Get the forecast closest to 12:00 PM (midday) for each day
         return grouped.values.mapNotNull { dayForecasts ->
             dayForecasts.minByOrNull { item ->
                 val calendar = Calendar.getInstance()
                 calendar.timeInMillis = item.dt * 1000
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
-                kotlin.math.abs(hour - 12) // Closest to 12 PM
+                kotlin.math.abs(hour - 12)
             }
         }
     }
@@ -62,15 +57,13 @@ class WeatherRepository(
         calendar.timeInMillis = item.dt * 1000
         val dayName = SimpleDateFormat("EEEE", Locale.getDefault()).format(calendar.time)
 
-        val temperature = item.main.temp.toInt() - 273 // Convert Kelvin to Celsius
+        val temperature = item.main.temp.toInt() - 273
         val weatherType = determineWeatherType(item.weather.firstOrNull()?.main ?: "")
-        val icon = item.weather.firstOrNull()?.icon ?: ""
 
         return WeatherForecast(
             dayName = dayName,
             temperature = temperature,
             weatherType = weatherType,
-            icon = icon
         )
     }
 

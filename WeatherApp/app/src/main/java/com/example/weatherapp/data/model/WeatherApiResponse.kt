@@ -28,7 +28,6 @@ data class Weather(
     @param:Json(name = "id") val id: Int,
     @param:Json(name = "main") val main: String,
     @param:Json(name = "description") val description: String,
-    @param:Json(name = "icon") val icon: String
 )
 
 data class City(

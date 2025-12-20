@@ -11,7 +11,6 @@ data class WeatherForecast(
     val dayName: String,
     val temperature: Int,
     val weatherType: WeatherType,
-    val icon: String
 )
 
 data class WeatherUiState(
