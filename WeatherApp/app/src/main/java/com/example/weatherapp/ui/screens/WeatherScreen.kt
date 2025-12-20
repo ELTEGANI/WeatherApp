@@ -20,9 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
+import com.example.weatherapp.data.model.WeatherForecast
 import com.example.weatherapp.data.model.WeatherType
 import com.example.weatherapp.ui.theme.Typography
 import com.example.weatherapp.ui.viewmodel.WeatherViewModel
+import com.example.weatherapp.util.WeatherIconMapper
 
 @Composable
 fun WeatherScreen(
@@ -132,7 +134,7 @@ fun CCWeatherBackground(
 }
 
 @Composable
-fun WeatherCard(forecast: com.example.weatherapp.data.model.WeatherForecast) {
+fun WeatherCard(forecast: WeatherForecast) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -148,11 +150,23 @@ fun WeatherCard(forecast: com.example.weatherapp.data.model.WeatherForecast) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = forecast.dayName,
-                style = Typography.titleMedium,
-                color = Color.Black
-            )
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = forecast.dayName,
+                    style = Typography.titleMedium,
+                    color = Color.Black
+                )
+                Image(
+                    painter = painterResource(
+                        id = WeatherIconMapper.getWeatherIconResId(forecast.weatherType)
+                    ),
+                    contentDescription = "${forecast.weatherType} icon",
+                    modifier = Modifier.size(32.dp)
+                )
+            }
             Text(
                 text = "${forecast.temperature}°",
                 style = Typography.headlineMedium,
