@@ -37,19 +37,17 @@ class WeatherRepository(
     }
 
     private fun groupForecastsByDay(forecasts: List<ForecastItem>): List<ForecastItem> {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
         val grouped = forecasts.groupBy { item ->
-            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
-                Date(item.dt * 1000)
-            )
+            dateFormat.format(Date(item.dt * 1000))
         }
-        return grouped.values.mapNotNull { dayForecasts ->
-            dayForecasts.minByOrNull { item ->
-                val calendar = Calendar.getInstance()
-                calendar.timeInMillis = item.dt * 1000
-                val hour = calendar.get(Calendar.HOUR_OF_DAY)
-                kotlin.math.abs(hour - 12)
-            }
-        }
+
+        val dailyForecasts = grouped.values.mapNotNull { dayForecasts ->
+            dayForecasts.maxByOrNull { it.main.temp }
+        }.sortedBy { it.dt }
+
+        return dailyForecasts.take(5)
     }
 
     private fun convertToWeatherForecast(item: ForecastItem): WeatherForecast {
@@ -72,7 +70,7 @@ class WeatherRepository(
             "clear" -> WeatherType.SUNNY
             "clouds" -> WeatherType.CLOUDY
             "rain", "drizzle", "thunderstorm" -> WeatherType.RAINY
-            else -> WeatherType.CLOUDY // Default
+            else -> WeatherType.SUNNY // Default
         }
     }
 }
