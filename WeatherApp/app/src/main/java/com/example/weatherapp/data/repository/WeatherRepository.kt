@@ -1,6 +1,6 @@
 package com.example.weatherapp.data.repository
 
-import android.util.Log
+import com.example.weatherapp.BuildConfig
 import com.example.weatherapp.data.local.LocationProvider
 import com.example.weatherapp.data.model.ForecastItem
 import com.example.weatherapp.data.model.WeatherForecast
@@ -25,7 +25,7 @@ class WeatherRepository @Inject constructor(
             val response = apiService.getWeatherForecast(
                 lat = location.first,
                 lon = location.second,
-                appId = "a6b99ad23cc5a4823e4429589d831d4e"
+                appId = BuildConfig.WEATHER_API_KEY
             )
             val dailyForecasts = groupForecastsByDay(response.list)
             val forecasts = dailyForecasts.map { item ->
