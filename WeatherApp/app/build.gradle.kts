@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     kotlin("kapt")
+    id ("jacoco")
 }
 
 android {
@@ -43,6 +44,7 @@ android {
     }
 }
 
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -81,4 +83,42 @@ dependencies {
 
     // For testing ViewModel
     testImplementation(libs.androidx.lifecycle.viewmodel.ktx)
+}
+
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+
+    val excludes = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*",
+        "**/*_Factory*.*",
+        "**/*_MembersInjector*.*",
+        "**/Hilt_*.*",
+        "**/*Hilt*.*",
+        "**/*ComposableSingletons*.*"
+    )
+
+    val javaClasses = fileTree("$buildDir/intermediates/javac/debug/classes") { exclude(excludes) }
+    val kotlinClasses = fileTree("$buildDir/tmp/kotlin-classes/debug") { exclude(excludes) }
+
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+
+    executionData.setFrom(
+        files(
+            "$buildDir/jacoco/testDebugUnitTest.exec",
+            "$buildDir/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+        ).filter { it.exists() }
+    )
 }
