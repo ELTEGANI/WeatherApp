@@ -90,16 +90,20 @@ fun WeatherScreen(
                 }
 
                 uiState.error != null -> {
-                    Text(
-                        text = uiState.error ?: "Error occurred",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.loadWeatherForecast() }) {
-                        Text("Retry")
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = uiState.error ?: "Error occurred",
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
+
                 else -> {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(16.dp)

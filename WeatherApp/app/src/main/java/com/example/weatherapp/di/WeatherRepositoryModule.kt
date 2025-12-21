@@ -25,8 +25,7 @@ object WeatherRepositoryModule {
     fun provideWeatherRepository(
         apiService: WeatherApiService,
         locationProvider: LocationProvider,
-        apiKey: String
     ): WeatherRepository {
-        return WeatherRepository(apiService, locationProvider, apiKey)
+        return WeatherRepository(apiService, locationProvider)
     }
 }

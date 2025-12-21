@@ -57,9 +57,4 @@ object NetworkModule {
         return retrofit.create(WeatherApiService::class.java)
     }
 
-    @Provides
-    @Singleton
-    fun provideApiKey(): String {
-        return "a6b99ad23cc5a4823e4429589d831d4e"
-    }
 }

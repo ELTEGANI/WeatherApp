@@ -10,21 +10,21 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+import javax.inject.Inject
 
-class WeatherRepository(
+class WeatherRepository @Inject constructor(
     private val apiService: WeatherApiService,
     private val locationProvider: LocationProvider,
-    private val apiKey: String
 ) {
     suspend fun getWeatherForecast(): Result<List<WeatherForecast>> {
         return try {
             val location = locationProvider.getCurrentLocation()
-                ?: return Result.failure(Exception("Location not available"))
+                ?: return Result.failure(Exception("Please enable location"))
 
             val response = apiService.getWeatherForecast(
                 lat = location.first,
                 lon = location.second,
-                appId = apiKey
+                appId = "a6b99ad23cc5a4823e4429589d831d4e"
             )
             val dailyForecasts = groupForecastsByDay(response.list)
             val forecasts = dailyForecasts.map { item ->
