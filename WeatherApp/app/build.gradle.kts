@@ -73,4 +73,12 @@ dependencies {
     implementation(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.androidx.hilt.navigation.compose)
+    // Unit Testing
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    // For testing ViewModel
+    testImplementation(libs.androidx.lifecycle.viewmodel.ktx)
 }
