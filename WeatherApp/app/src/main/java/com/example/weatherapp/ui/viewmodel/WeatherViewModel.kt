@@ -1,9 +1,9 @@
 package com.example.weatherapp.ui.viewmodel
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.data.model.WeatherForecast
 import com.example.weatherapp.data.model.WeatherType
 import com.example.weatherapp.data.model.WeatherUiState
 import com.example.weatherapp.data.repository.WeatherRepository
@@ -32,24 +32,20 @@ class WeatherViewModel @Inject constructor(
 
             repository.getWeatherForecast()
                 .onSuccess { forecasts ->
-                    val dominantWeatherType = determineDominantWeatherType(forecasts)
+                    val todayWeatherType = forecasts.firstOrNull()?.weatherType ?: WeatherType.SUNNY
+
                     _uiState.value = WeatherUiState(
                         forecasts = forecasts,
                         isLoading = false,
-                        weatherType = dominantWeatherType
+                        weatherType = todayWeatherType
                     )
                 }
                 .onFailure { error ->
-                    _uiState.value = uiState.value.copy(
+                    _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         error = error.message ?: "Unknown error occurred"
                     )
                 }
         }
-    }
-
-    private fun determineDominantWeatherType(forecasts: List<WeatherForecast>): WeatherType {
-        val weatherTypeCounts = forecasts.groupingBy { it.weatherType }.eachCount()
-        return weatherTypeCounts.maxByOrNull { it.value }?.key ?: WeatherType.SUNNY
     }
 }

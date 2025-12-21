@@ -174,8 +174,7 @@ fun WeatherCard(forecast: WeatherForecast) {
                 )
                 Image(
                     painter = painterResource(
-                        id = WeatherIconMapper.getWeatherIconResId(forecast.weatherType)
-                    ),
+                        id = WeatherIconMapper.getWeatherIconResId(forecast.weatherType)                     ),
                     contentDescription = "${forecast.weatherType} icon",
                     modifier = Modifier.size(60.dp)
                 )

@@ -1,5 +1,6 @@
 package com.example.weatherapp.data.repository
 
+import android.util.Log
 import com.example.weatherapp.data.local.LocationProvider
 import com.example.weatherapp.data.model.ForecastItem
 import com.example.weatherapp.data.model.WeatherForecast
@@ -30,6 +31,7 @@ class WeatherRepository @Inject constructor(
             val forecasts = dailyForecasts.map { item ->
                 convertToWeatherForecast(item)
             }
+
             Result.success(forecasts.take(5))
         } catch (e: Exception) {
             Result.failure(e)
@@ -43,11 +45,9 @@ class WeatherRepository @Inject constructor(
             dateFormat.format(Date(item.dt * 1000))
         }
 
-        val dailyForecasts = grouped.values.mapNotNull { dayForecasts ->
+        return grouped.values.mapNotNull { dayForecasts ->
             dayForecasts.maxByOrNull { it.main.temp }
-        }.sortedBy { it.dt }
-
-        return dailyForecasts.take(5)
+        }.sortedBy { it.dt }.take(5)
     }
 
     private fun convertToWeatherForecast(item: ForecastItem): WeatherForecast {
@@ -56,7 +56,9 @@ class WeatherRepository @Inject constructor(
         val dayName = SimpleDateFormat("EEEE", Locale.getDefault()).format(calendar.time)
 
         val temperature = item.main.temp.toInt() - 273
-        val weatherType = determineWeatherType(item.weather.firstOrNull()?.main ?: "")
+        val weatherMain = item.weather.firstOrNull()?.main ?: ""
+        val weatherDescription = item.weather.firstOrNull()?.description ?: ""
+        val weatherType = determineWeatherType(weatherMain, weatherDescription)
 
         return WeatherForecast(
             dayName = dayName,
@@ -65,12 +67,25 @@ class WeatherRepository @Inject constructor(
         )
     }
 
-    private fun determineWeatherType(main: String): WeatherType {
-        return when (main.lowercase()) {
+    private fun determineWeatherType(main: String, description: String? = null): WeatherType {
+        val mainLower = main.lowercase().trim()
+        val descLower = description?.lowercase()?.trim() ?: ""
+
+        return when (mainLower) {
             "clear" -> WeatherType.SUNNY
-            "clouds" -> WeatherType.CLOUDY
+
+            "clouds" -> {
+                when {
+                    descLower.contains("few") -> WeatherType.SUNNY
+                    descLower.contains("scattered") -> WeatherType.CLOUDY
+                    descLower.contains("broken") -> WeatherType.CLOUDY
+                    descLower.contains("overcast") -> WeatherType.CLOUDY
+                    else -> WeatherType.CLOUDY
+                }
+            }
+
             "rain", "drizzle", "thunderstorm" -> WeatherType.RAINY
-            else -> WeatherType.SUNNY // Default
+
+            else -> WeatherType.SUNNY
         }
-    }
-}
+    }}
