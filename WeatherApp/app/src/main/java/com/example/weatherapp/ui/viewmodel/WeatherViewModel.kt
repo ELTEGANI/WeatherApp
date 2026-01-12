@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,8 +20,9 @@ class WeatherViewModel @Inject constructor(
     private val repository: WeatherRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(WeatherUiState())
+    private val _uiState = MutableStateFlow<WeatherUiState>(WeatherUiState.Loading)
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
+
 
     init {
         loadWeatherForecast()
@@ -28,23 +30,25 @@ class WeatherViewModel @Inject constructor(
 
     fun loadWeatherForecast() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.update { WeatherUiState.Loading }
 
             repository.getWeatherForecast()
                 .onSuccess { forecasts ->
                     val todayWeatherType = forecasts.firstOrNull()?.weatherType ?: WeatherType.SUNNY
 
-                    _uiState.value = WeatherUiState(
-                        forecasts = forecasts,
-                        isLoading = false,
-                        weatherType = todayWeatherType
-                    )
+                    _uiState.update {
+                        WeatherUiState.Success(
+                            forecasts = forecasts,
+                            weatherType = todayWeatherType
+                        )
+                    }
                 }
                 .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = error.message ?: "Unknown error occurred"
-                    )
+                    _uiState.update {
+                        WeatherUiState.Error(
+                            message = error.message ?: "Unknown error occurred"
+                        )
+                    }
                 }
         }
     }

@@ -13,9 +13,15 @@ data class WeatherForecast(
     val weatherType: WeatherType,
 )
 
-data class WeatherUiState(
-    val forecasts: List<WeatherForecast> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val weatherType: WeatherType = WeatherType.SUNNY
-)
+sealed interface WeatherUiState {
+    data object Loading : WeatherUiState
+
+    data class Success(
+        val forecasts: List<WeatherForecast>,
+        val weatherType: WeatherType
+    ) : WeatherUiState
+
+    data class Error(
+        val message: String
+    ) : WeatherUiState
+}

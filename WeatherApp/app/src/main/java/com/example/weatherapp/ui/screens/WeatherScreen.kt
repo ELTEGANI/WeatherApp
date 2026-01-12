@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,9 +33,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.weatherapp.R
 import com.example.weatherapp.data.model.WeatherForecast
 import com.example.weatherapp.data.model.WeatherType
+import com.example.weatherapp.data.model.WeatherUiState
 import com.example.weatherapp.ui.theme.Typography
 import com.example.weatherapp.ui.viewmodel.WeatherViewModel
 import com.example.weatherapp.util.WeatherIconMapper
@@ -46,19 +47,41 @@ fun WeatherScreen(
     modifier: Modifier = Modifier,
     viewModel: WeatherViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     RequestLocationPermission(
         onGranted = { viewModel.loadWeatherForecast() }
     )
 
-    WeatherScreenContent(
-        modifier = modifier,
-        weatherType = uiState.weatherType,
-        isLoading = uiState.isLoading,
-        error = uiState.error,
-        forecasts = uiState.forecasts
-    )
+    when (val state = uiState) {
+        is WeatherUiState.Loading -> {
+            WeatherScreenContent(
+                modifier = modifier,
+                weatherType = WeatherType.SUNNY,
+                isLoading = true,
+                error = null,
+                forecasts = emptyList()
+            )
+        }
+        is WeatherUiState.Success -> {
+            WeatherScreenContent(
+                modifier = modifier,
+                weatherType = state.weatherType,
+                isLoading = false,
+                error = null,
+                forecasts = state.forecasts
+            )
+        }
+        is WeatherUiState.Error -> {
+            WeatherScreenContent(
+                modifier = modifier,
+                weatherType = WeatherType.SUNNY,
+                isLoading = false,
+                error = state.message,
+                forecasts = emptyList()
+            )
+        }
+    }
 }
 
 @Composable

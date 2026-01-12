@@ -3,6 +3,7 @@ package com.example.weatherapp
 import MainDispatcherRule
 import com.example.weatherapp.data.model.WeatherForecast
 import com.example.weatherapp.data.model.WeatherType
+import com.example.weatherapp.data.model.WeatherUiState
 import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.ui.viewmodel.WeatherViewModel
 import io.mockk.coEvery
@@ -11,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -34,10 +36,10 @@ class WeatherViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals(false, state.isLoading)
-        assertEquals(null, state.error)
-        assertEquals(forecasts, state.forecasts)
-        assertEquals(WeatherType.RAINY, state.weatherType)
+        assertTrue("State should be Success", state is WeatherUiState.Success)
+        val successState = state as WeatherUiState.Success
+        assertEquals(forecasts, successState.forecasts)
+        assertEquals(WeatherType.RAINY, successState.weatherType)
     }
 
     @Test
@@ -50,10 +52,9 @@ class WeatherViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals(false, state.isLoading)
-        assertEquals("Network error", state.error)
-        assertEquals(emptyList<WeatherForecast>(), state.forecasts)
-        assertEquals(WeatherType.SUNNY, state.weatherType) // default
+        assertTrue("State should be Error", state is WeatherUiState.Error)
+        val errorState = state as WeatherUiState.Error
+        assertEquals("Network error", errorState.message)
     }
 
     @Test
@@ -66,9 +67,9 @@ class WeatherViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals(false, state.isLoading)
-        assertEquals(null, state.error)
-        assertEquals(emptyList<WeatherForecast>(), state.forecasts)
-        assertEquals(WeatherType.SUNNY, state.weatherType)
+        assertTrue("State should be Success", state is WeatherUiState.Success)
+        val successState = state as WeatherUiState.Success
+        assertEquals(emptyList<WeatherForecast>(), successState.forecasts)
+        assertEquals(WeatherType.SUNNY, successState.weatherType)
     }
 }
