@@ -32,6 +32,7 @@ class WeatherViewModelTest {
         coEvery { repository.getWeatherForecast() } returns Result.success(forecasts)
 
         val viewModel = WeatherViewModel(repository)
+        viewModel.loadWeatherForecast()
 
         advanceUntilIdle()
 
@@ -48,6 +49,7 @@ class WeatherViewModelTest {
         coEvery { repository.getWeatherForecast() } returns Result.failure(Exception("Network error"))
 
         val viewModel = WeatherViewModel(repository)
+        viewModel.loadWeatherForecast()
 
         advanceUntilIdle()
 
@@ -63,6 +65,7 @@ class WeatherViewModelTest {
         coEvery { repository.getWeatherForecast() } returns Result.success(emptyList())
 
         val viewModel = WeatherViewModel(repository)
+        viewModel.loadWeatherForecast()
 
         advanceUntilIdle()
 
