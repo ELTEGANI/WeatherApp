@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.screens
 
 import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -25,6 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
 import com.example.weatherapp.R
 import com.example.weatherapp.data.model.WeatherForecast
 import com.example.weatherapp.data.model.WeatherType
@@ -88,6 +94,11 @@ fun WeatherScreen(
 private fun RequestLocationPermission(
     onGranted: () -> Unit
 ) {
+    val context = LocalContext.current
+
+    var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
+    var hasCalledOnGranted by rememberSaveable { mutableStateOf(false) }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -95,16 +106,42 @@ private fun RequestLocationPermission(
             permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                     permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
-        if (granted) onGranted()
+        if (granted && !hasCalledOnGranted) {
+            hasCalledOnGranted = true
+            onGranted()
+        }
     }
 
-    LaunchedEffect(Unit) {
-        permissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-        )
+    val isPermissionGranted = run {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        fineGranted || coarseGranted
+    }
+
+    LaunchedEffect(isPermissionGranted, hasRequestedPermission, hasCalledOnGranted) {
+        when {
+            isPermissionGranted && !hasCalledOnGranted -> {
+                hasCalledOnGranted = true
+                onGranted()
+            }
+            !isPermissionGranted && !hasRequestedPermission -> {
+                hasRequestedPermission = true
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            }
+        }
     }
 }
 
