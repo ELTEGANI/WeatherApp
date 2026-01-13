@@ -8,6 +8,7 @@ import com.example.weatherapp.data.model.WeatherType
 import com.example.weatherapp.data.model.WeatherUiState
 import com.example.weatherapp.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,11 +24,17 @@ class WeatherViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<WeatherUiState>(WeatherUiState.Loading)
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
 
+    private var loadJob: Job? = null
 
+    fun loadWeatherForecast(forceRefresh: Boolean = false) {
+        if (!forceRefresh) {
+            if (_uiState.value is WeatherUiState.Success) return
+            if (loadJob?.isActive == true) return
+        } else {
+            loadJob?.cancel()
+        }
 
-
-    fun loadWeatherForecast() {
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             _uiState.update { WeatherUiState.Loading }
 
             repository.getWeatherForecast()

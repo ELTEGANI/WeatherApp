@@ -97,7 +97,6 @@ private fun RequestLocationPermission(
     val context = LocalContext.current
 
     var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
-    var hasCalledOnGranted by rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -106,8 +105,7 @@ private fun RequestLocationPermission(
             permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                     permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
-        if (granted && !hasCalledOnGranted) {
-            hasCalledOnGranted = true
+        if (granted) {
             onGranted()
         }
     }
@@ -126,10 +124,9 @@ private fun RequestLocationPermission(
         fineGranted || coarseGranted
     }
 
-    LaunchedEffect(isPermissionGranted, hasRequestedPermission, hasCalledOnGranted) {
+    LaunchedEffect(isPermissionGranted, hasRequestedPermission) {
         when {
-            isPermissionGranted && !hasCalledOnGranted -> {
-                hasCalledOnGranted = true
+            isPermissionGranted -> {
                 onGranted()
             }
             !isPermissionGranted && !hasRequestedPermission -> {
