@@ -24,9 +24,7 @@ class WeatherViewModel @Inject constructor(
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
 
 
-    init {
-        loadWeatherForecast()
-    }
+
 
     fun loadWeatherForecast() {
         viewModelScope.launch {
