@@ -48,6 +48,7 @@ import com.example.weatherapp.ui.theme.Typography
 import com.example.weatherapp.ui.viewmodel.WeatherViewModel
 import com.example.weatherapp.util.WeatherIconMapper
 
+
 @Composable
 fun WeatherScreen(
     modifier: Modifier = Modifier,
@@ -55,11 +56,25 @@ fun WeatherScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    WeatherScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onLoadWeather = { viewModel.loadWeatherForecast() }
+    )
+}
+
+
+@Composable
+fun WeatherScreen(
+    modifier: Modifier = Modifier,
+    uiState: WeatherUiState,
+    onLoadWeather: () -> Unit
+) {
     RequestLocationPermission(
-        onGranted = { viewModel.loadWeatherForecast() }
+        onGranted = onLoadWeather
     )
 
-    when (val state = uiState) {
+    when (uiState) {
         is WeatherUiState.Loading -> {
             WeatherScreenContent(
                 modifier = modifier,
@@ -72,10 +87,10 @@ fun WeatherScreen(
         is WeatherUiState.Success -> {
             WeatherScreenContent(
                 modifier = modifier,
-                weatherType = state.weatherType,
+                weatherType = uiState.weatherType,
                 isLoading = false,
                 error = null,
-                forecasts = state.forecasts
+                forecasts = uiState.forecasts
             )
         }
         is WeatherUiState.Error -> {
@@ -83,7 +98,7 @@ fun WeatherScreen(
                 modifier = modifier,
                 weatherType = WeatherType.SUNNY,
                 isLoading = false,
-                error = state.message,
+                error = uiState.message,
                 forecasts = emptyList()
             )
         }
