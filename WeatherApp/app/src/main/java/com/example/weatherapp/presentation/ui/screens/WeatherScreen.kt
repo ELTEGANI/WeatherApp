@@ -59,7 +59,8 @@ fun WeatherScreen(
     WeatherScreenComponents(
         modifier = modifier,
         uiState = uiState,
-        onLoadWeather = { viewModel.loadWeatherForecast() }
+        onLoadWeather = { viewModel.loadWeatherForecast() },
+        onPermissionDenied = { viewModel.onPermissionDenied() }
     )
 }
 
@@ -68,10 +69,12 @@ fun WeatherScreen(
 fun WeatherScreenComponents(
     modifier: Modifier = Modifier,
     uiState: WeatherUiState,
-    onLoadWeather: () -> Unit
+    onLoadWeather: () -> Unit,
+    onPermissionDenied: () -> Unit = {}
 ) {
     RequestLocationPermission(
-        onGranted = onLoadWeather
+        onGranted = onLoadWeather,
+        onDenied = onPermissionDenied
     )
 
     when (uiState) {
@@ -107,7 +110,8 @@ fun WeatherScreenComponents(
 
 @Composable
 private fun RequestLocationPermission(
-    onGranted: () -> Unit
+    onGranted: () -> Unit,
+    onDenied: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -122,6 +126,8 @@ private fun RequestLocationPermission(
 
         if (granted) {
             onGranted()
+        } else {
+            onDenied()
         }
     }
 

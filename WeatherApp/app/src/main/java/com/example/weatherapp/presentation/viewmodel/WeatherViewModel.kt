@@ -56,4 +56,12 @@ class WeatherViewModel @Inject constructor(
                 }
         }
     }
+
+    fun onPermissionDenied() {
+        _uiState.update {
+            WeatherUiState.Error(
+                message = "Location permission is required to show weather forecast"
+            )
+        }
+    }
 }
