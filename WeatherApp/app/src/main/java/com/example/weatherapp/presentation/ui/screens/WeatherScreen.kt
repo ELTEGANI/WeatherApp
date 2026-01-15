@@ -55,28 +55,35 @@ import com.example.weatherapp.presentation.viewmodel.WeatherViewModel
 import com.example.weatherapp.util.WeatherIconMapper
 
 
+/**
+ * Route: Handles ViewModel integration and state collection.
+ * This is the entry point that connects to the navigation graph.
+ */
 @Composable
-fun WeatherScreen(
+fun WeatherScreenRoute(
     modifier: Modifier = Modifier,
     viewModel: WeatherViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    WeatherScreenComponents(
-        modifier = modifier,
+    WeatherScreen(
         uiState = uiState,
         onLoadWeather = { viewModel.loadWeatherForecast() },
-        onPermissionDenied = { viewModel.onPermissionDenied() }
+        onPermissionDenied = { viewModel.onPermissionDenied() },
+        modifier = modifier
     )
 }
 
-
+/**
+ * Screen: Stateless, testable, and previewable composable.
+ * Takes state and callbacks as parameters (State Hoisting).
+ */
 @Composable
-fun WeatherScreenComponents(
-    modifier: Modifier = Modifier,
+fun WeatherScreen(
     uiState: WeatherUiState,
     onLoadWeather: () -> Unit,
-    onPermissionDenied: () -> Unit = {}
+    onPermissionDenied: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     RequestLocationPermission(
         onGranted = onLoadWeather,
