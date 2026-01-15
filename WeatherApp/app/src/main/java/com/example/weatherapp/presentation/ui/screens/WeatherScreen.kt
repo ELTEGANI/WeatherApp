@@ -14,15 +14,21 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -178,13 +184,16 @@ private fun WeatherScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(horizontal = 20.dp, vertical = 32.dp),
         ) {
             ForecastHeader()
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             when {
                 isLoading -> LoadingState()
                 error != null -> ErrorState(message = error)
+                forecasts.isEmpty() -> EmptyState()
                 else -> ForecastList(forecasts = forecasts)
             }
         }
@@ -193,19 +202,23 @@ private fun WeatherScreenContent(
 
 @Composable
 private fun ForecastHeader() {
-    Text(
-        text = "5 Day Forecast",
-        style = Typography.titleLarge,
-        color = Color.White,
-        modifier = Modifier.padding(top = 30.dp, bottom = 18.dp)
-    )
-    HorizontalDivider(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        thickness = 1.dp,
-        color = Color.White
-    )
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "5 Day Forecast",
+            style = Typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold
+            ),
+            color = Color.White,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 2.dp,
+            color = Color.White.copy(alpha = 0.8f)
+        )
+    }
 }
 
 @Composable
@@ -216,7 +229,22 @@ private fun LoadingState() {
             .fillMaxHeight(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(color = Color.White)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            CircularProgressIndicator(
+                color = Color.White,
+                strokeWidth = 4.dp,
+                modifier = Modifier.size(56.dp)
+            )
+            Text(
+                text = "Loading weather data...",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White.copy(alpha = 0.9f),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -228,21 +256,88 @@ private fun ErrorState(message: String) {
             .fillMaxHeight(),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = message.ifBlank { "Error occurred" },
-            color = Color.White,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White.copy(alpha = 0.95f)
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Error icon placeholder (using text)
+                Text(
+                    text = "⚠️",
+                    style = MaterialTheme.typography.displayMedium,
+                )
+                
+                Text(
+                    text = message.ifBlank { "Something went wrong" },
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = Color.Black.copy(alpha = 0.87f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyState() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 32.dp)
+        ) {
+            Text(
+                text = "🌤️",
+                style = MaterialTheme.typography.displayLarge,
+            )
+            Text(
+                text = "No forecast data available",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "Pull to refresh",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
 @Composable
 private fun ForecastList(forecasts: List<WeatherForecast>) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
         items(forecasts) { forecast ->
             WeatherCard(forecast = forecast)
+        }
+        
+        // Bottom padding for last item
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -279,40 +374,55 @@ fun WeatherBackground(
 fun WeatherCard(forecast: WeatherForecast) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.9f)
+            containerColor = Color.White.copy(alpha = 0.95f)
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = forecast.dayName,
-                    style = Typography.titleMedium,
-                    color = Color.Black
-                )
+                // Weather icon
                 Image(
                     painter = painterResource(
                         id = WeatherIconMapper.getWeatherIconResId(forecast.weatherType)
                     ),
-                    contentDescription = "${forecast.weatherType} icon",
-                    modifier = Modifier.size(60.dp)
+                    contentDescription = "${forecast.weatherType} weather icon",
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                
+                // Day name
+                Text(
+                    text = forecast.dayName,
+                    style = Typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = Color.Black.copy(alpha = 0.87f)
                 )
             }
+            
+            // Temperature
             Text(
                 text = "${forecast.temperature}°",
-                style = Typography.headlineMedium,
-                color = Color.Black,
+                style = Typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color.Black.copy(alpha = 0.87f),
                 textAlign = TextAlign.End
             )
         }
