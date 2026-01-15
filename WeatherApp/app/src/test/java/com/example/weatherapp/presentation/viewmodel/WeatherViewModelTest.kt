@@ -1,11 +1,10 @@
-package com.example.weatherapp
+package com.example.weatherapp.presentation.viewmodel
 
 import MainDispatcherRule
-import com.example.weatherapp.data.model.WeatherForecast
-import com.example.weatherapp.data.model.WeatherType
-import com.example.weatherapp.data.model.WeatherUiState
-import com.example.weatherapp.data.repository.WeatherRepository
-import com.example.weatherapp.ui.viewmodel.WeatherViewModel
+import com.example.weatherapp.domain.model.WeatherForecast
+import com.example.weatherapp.domain.model.WeatherType
+import com.example.weatherapp.domain.usecase.GetWeatherForecastUseCase
+import com.example.weatherapp.presentation.model.WeatherUiState
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,6 +15,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class WeatherViewModelTest {
 
@@ -23,15 +23,15 @@ class WeatherViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun `init success sets forecasts and background weatherType from first item`() = runTest {
-        val repository = mockk<WeatherRepository>()
+    fun `loadWeatherForecast success sets forecasts and background weatherType from first item`() = runTest {
+        val useCase = mockk<GetWeatherForecastUseCase>()
         val forecasts = listOf(
             WeatherForecast(dayName = "Monday", temperature = 22, weatherType = WeatherType.RAINY),
             WeatherForecast(dayName = "Tuesday", temperature = 23, weatherType = WeatherType.SUNNY),
         )
-        coEvery { repository.getWeatherForecast() } returns Result.success(forecasts)
+        coEvery { useCase() } returns Result.success(forecasts)
 
-        val viewModel = WeatherViewModel(repository)
+        val viewModel = WeatherViewModel(useCase)
         viewModel.loadWeatherForecast()
 
         advanceUntilIdle()
@@ -44,11 +44,11 @@ class WeatherViewModelTest {
     }
 
     @Test
-    fun `init failure sets error and stops loading`() = runTest {
-        val repository = mockk<WeatherRepository>()
-        coEvery { repository.getWeatherForecast() } returns Result.failure(Exception("Network error"))
+    fun `loadWeatherForecast failure sets error and stops loading`() = runTest {
+        val useCase = mockk<GetWeatherForecastUseCase>()
+        coEvery { useCase() } returns Result.failure(Exception("Network error"))
 
-        val viewModel = WeatherViewModel(repository)
+        val viewModel = WeatherViewModel(useCase)
         viewModel.loadWeatherForecast()
 
         advanceUntilIdle()
@@ -60,11 +60,11 @@ class WeatherViewModelTest {
     }
 
     @Test
-    fun `init success with empty list keeps default SUNNY weatherType`() = runTest {
-        val repository = mockk<WeatherRepository>()
-        coEvery { repository.getWeatherForecast() } returns Result.success(emptyList())
+    fun `loadWeatherForecast success with empty list keeps default SUNNY weatherType`() = runTest {
+        val useCase = mockk<GetWeatherForecastUseCase>()
+        coEvery { useCase() } returns Result.success(emptyList())
 
-        val viewModel = WeatherViewModel(repository)
+        val viewModel = WeatherViewModel(useCase)
         viewModel.loadWeatherForecast()
 
         advanceUntilIdle()

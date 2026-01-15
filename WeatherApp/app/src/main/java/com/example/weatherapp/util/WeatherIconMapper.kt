@@ -1,11 +1,9 @@
 package com.example.weatherapp.util
 
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import com.example.weatherapp.R
-import com.example.weatherapp.data.model.WeatherType
-import kotlin.math.log
+import com.example.weatherapp.domain.model.WeatherType
 
 object WeatherIconMapper {
     @DrawableRes

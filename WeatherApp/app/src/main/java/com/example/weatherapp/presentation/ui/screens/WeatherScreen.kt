@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.screens
+package com.example.weatherapp.presentation.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -41,11 +41,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 import com.example.weatherapp.R
-import com.example.weatherapp.data.model.WeatherForecast
-import com.example.weatherapp.data.model.WeatherType
-import com.example.weatherapp.data.model.WeatherUiState
-import com.example.weatherapp.ui.theme.Typography
-import com.example.weatherapp.ui.viewmodel.WeatherViewModel
+import com.example.weatherapp.domain.model.WeatherForecast
+import com.example.weatherapp.domain.model.WeatherType
+import com.example.weatherapp.presentation.model.WeatherUiState
+import com.example.weatherapp.presentation.ui.theme.Typography
+import com.example.weatherapp.presentation.viewmodel.WeatherViewModel
 import com.example.weatherapp.util.WeatherIconMapper
 
 

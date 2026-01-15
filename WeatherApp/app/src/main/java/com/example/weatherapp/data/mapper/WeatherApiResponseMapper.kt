@@ -1,41 +1,22 @@
-package com.example.weatherapp.data.repository
+package com.example.weatherapp.data.mapper
 
-import com.example.weatherapp.BuildConfig
-import com.example.weatherapp.data.local.LocationProvider
 import com.example.weatherapp.data.model.ForecastItem
-import com.example.weatherapp.data.model.WeatherForecast
-import com.example.weatherapp.data.model.WeatherType
-import com.example.weatherapp.data.remote.WeatherApiService
+import com.example.weatherapp.domain.model.WeatherForecast
+import com.example.weatherapp.domain.model.WeatherType
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-
 import javax.inject.Inject
 
-class WeatherRepository @Inject constructor(
-    private val apiService: WeatherApiService,
-    private val locationProvider: LocationProvider,
-) {
-    suspend fun getWeatherForecast(): Result<List<WeatherForecast>> {
-        return try {
-            val location = locationProvider.getCurrentLocation()
-                ?: return Result.failure(Exception("Please enable location"))
 
-            val response = apiService.getWeatherForecast(
-                lat = location.first,
-                lon = location.second,
-                appId = BuildConfig.WEATHER_API_KEY
-            )
-            val dailyForecasts = groupForecastsByDay(response.list)
-            val forecasts = dailyForecasts.map { item ->
-                convertToWeatherForecast(item)
-            }
+class WeatherApiResponseMapper @Inject constructor() {
 
-            Result.success(forecasts.take(5))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    fun mapToDomain(forecasts: List<ForecastItem>): List<WeatherForecast> {
+        val dailyForecasts = groupForecastsByDay(forecasts)
+        return dailyForecasts.map { item ->
+            convertToWeatherForecast(item)
+        }.take(5)
     }
 
     private fun groupForecastsByDay(forecasts: List<ForecastItem>): List<ForecastItem> {
@@ -88,4 +69,5 @@ class WeatherRepository @Inject constructor(
 
             else -> WeatherType.SUNNY
         }
-    }}
+    }
+}

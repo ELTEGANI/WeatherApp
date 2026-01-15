@@ -1,12 +1,10 @@
-package com.example.weatherapp.ui.viewmodel
+package com.example.weatherapp.presentation.viewmodel
 
-
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.data.model.WeatherType
-import com.example.weatherapp.data.model.WeatherUiState
-import com.example.weatherapp.data.repository.WeatherRepository
+import com.example.weatherapp.domain.model.WeatherType
+import com.example.weatherapp.domain.usecase.GetWeatherForecastUseCase
+import com.example.weatherapp.presentation.model.WeatherUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,9 +14,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
-    private val repository: WeatherRepository
+    private val getWeatherForecastUseCase: GetWeatherForecastUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WeatherUiState>(WeatherUiState.Loading)
@@ -37,7 +36,7 @@ class WeatherViewModel @Inject constructor(
         loadJob = viewModelScope.launch {
             _uiState.update { WeatherUiState.Loading }
 
-            repository.getWeatherForecast()
+            getWeatherForecastUseCase()
                 .onSuccess { forecasts ->
                     val todayWeatherType = forecasts.firstOrNull()?.weatherType ?: WeatherType.SUNNY
 

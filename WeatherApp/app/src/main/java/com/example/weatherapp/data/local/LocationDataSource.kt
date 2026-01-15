@@ -4,17 +4,22 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import com.example.weatherapp.domain.model.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class LocationProvider(private val context: Context) {
+
+class LocationDataSource @Inject constructor(
+    private val context: Context
+) {
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 
-    suspend fun getCurrentLocation(): Pair<Double, Double>? {
+    suspend fun getCurrentLocation(): Location? {
         if (!hasLocationPermission()) {
             return null
         }
@@ -26,7 +31,7 @@ class LocationProvider(private val context: Context) {
                 .await()
 
             locationResult?.let {
-                Pair(it.latitude, it.longitude)
+                Location(latitude = it.latitude, longitude = it.longitude)
             }
         } catch (e: Exception) {
             null
