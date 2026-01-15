@@ -56,7 +56,7 @@ fun WeatherScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    WeatherScreen(
+    WeatherScreenComponents(
         modifier = modifier,
         uiState = uiState,
         onLoadWeather = { viewModel.loadWeatherForecast() }
@@ -65,7 +65,7 @@ fun WeatherScreen(
 
 
 @Composable
-fun WeatherScreen(
+fun WeatherScreenComponents(
     modifier: Modifier = Modifier,
     uiState: WeatherUiState,
     onLoadWeather: () -> Unit
